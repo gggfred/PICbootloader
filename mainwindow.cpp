@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     searchDevice.start();
 
     EraseProgVer = false;
+    PortSelected = COM;
     connectState = 0;
 }
 
@@ -245,7 +246,7 @@ void MainWindow::OnSearchDeviceTimer()
 {
     switch (connectState) {
     case 0: //  Cheque estado de la conexion, si está desconectado intenta conectar
-        if (!mBootLoader.GetPortOpenStatus(COM)){
+        if (!mBootLoader.GetPortOpenStatus(PortSelected)){
             connectState = 1;
         }
         break;
