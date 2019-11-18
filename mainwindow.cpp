@@ -206,9 +206,13 @@ unsigned int MainWindow::OnTransmitFailure(unsigned char cmd, char *RxDataPtrAdr
     switch(cmd)
     {
     case READ_BOOT_INFO:
+        PrintKonsole("Por favor reinicie el dispositivo e invoque el bootloader");
+        connectState = 2;
+        break;
     case ERASE_FLASH:
     case PROGRAM_FLASH:
     case READ_CRC:
+        // Print a message to user/
         PrintKonsole("Sin respuesta del dispositivo. Operacion fallida");
         connectState = 2;
         RestoreButtonStatus();
@@ -264,17 +268,14 @@ void MainWindow::OnSearchDeviceTimer()
                 mBootLoader.ClosePort(PortSelected);
             }
             // Open Communication port freshly.
-            mBootLoader.OpenPort(COM,comPortName,QSerialPort::Baud115200,0,0,0,0);
+            mBootLoader.OpenPort(PortSelected,comPortName,QSerialPort::Baud115200,0,0,0,0);
 
             connectState = 0;
 
             if (mBootLoader.GetPortOpenStatus(PortSelected))
             {   // COM port opened.
                 // Trigger Read boot info command
-                mBootLoader.SendCommand(READ_BOOT_INFO,30,200);
-
-                // Print a message to user/
-                PrintKonsole("Por favor reinicie el dispositivo e invoque el bootloader");
+                mBootLoader.SendCommand(READ_BOOT_INFO,3,1000);
             }
         }
         break;
@@ -282,13 +283,12 @@ void MainWindow::OnSearchDeviceTimer()
         // Already connected. Disconnect now.
         ConnectionEstablished = false;
 
-        mBootLoader.ClosePort(COM);
+        mBootLoader.ClosePort(PortSelected);
 
         // Print console.
         ui->lblEstado->setText("Desconectado");
         PrintKonsole("Dispositivo desconectado");
 
-//        ui->ctrlButtonConnectDevice->setText("Conectar");
         connectState = 0;
         this->searchDevice.stop();
         break;
@@ -310,6 +310,7 @@ void MainWindow::OnComPortError(QSerialPort::SerialPortError error)
         break;
     }
     if (error != QSerialPort::NoError){
+        connectState = 2;
         qInfo() << "Error serial" << error;
     }
 }

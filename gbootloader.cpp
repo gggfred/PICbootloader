@@ -27,7 +27,6 @@ GBootLoader::GBootLoader(QObject *parent)
     connect(&timer, SIGNAL(timeout()), this, SLOT(RxTxThread()));
 
     ComPort = new QSerialPort();
-    connect(ComPort, SIGNAL(readyRead()), this, SLOT(ReceiveTask()));
 }
 
 GBootLoader::~GBootLoader() {}
@@ -503,7 +502,7 @@ void GBootLoader::RxTxThread()
 {
     tickCount++;
 
-    //ReceiveTask();
+    ReceiveTask();
     TransmitTask();
 }
 
